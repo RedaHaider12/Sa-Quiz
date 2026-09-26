@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sa Quiz</title>
+    <style>
+        :root {
+            --primary-color: #0056b3;
+            --bg-color: #f4f7f6;
+            --text-color: #333;
+            --card-bg: #fff;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        header h1 { margin: 0; font-size: 2rem; letter-spacing: 1px; }
+        
+        .container {
+            max-width: 850px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .exam-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--primary-color);
+        }
+        .question-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #111;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: vertical;
+            font-family: inherit;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+        }
+        .btn-submit {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+        .btn-submit:hover {
+            background-color: #004494;
+        }
+        #result {
+            display: none;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .pass { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .fail { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            color: #555;
+            font-weight: bold;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Sa Quiz</h1>
+    </header>
+
+    <div class="container">
+        <form id="examForm">
+            <div id="questions-container"></div>
+            <button type="button" class="btn-submit" onclick="submitExam()">Submit Answer</button>
+        </form>
+
+        <div id="result"></div>
+    </div>
+
+    <footer>
+        By : Reda Haider
+    </footer>
+
+    <script>
+        // 20 أسئلة تعتمد على الفهم العميق والتحليل النسيجي للمادة
+        const questionsData = [
+            { id: 'q1', text: 'Q1: Why are Nissl bodies abundant in motor neurons but completely absent in the axon hillock and axoplasm?', keywords: ['protein', 'synthesis', 'rer', 'rough endoplasmic', 'ribosome', 'polyribosome'] },
+            { id: 'q2', text: 'Q2: How does the initial segment of an axon differ functionally from the rest of the axoplasm regarding electrical conduction?', keywords: ['ion channels', 'channel', 'potential', 'electrical', 'action potential', 'generate', 'generating'] },
+            { id: 'q3', text: 'Q3: Explain the unique pathway of sensory impulses in pseudounipolar neurons compared to multipolar neurons.', keywords: ['directly', 'skip', 'skipping', 'without passing', 'perikaryon', 'cell body'] },
+            { id: 'q4', text: 'Q4: What specific organelle or cellular components are transported via the intermediate speed of anterograde flow?', keywords: ['mitochondria', 'mitochondrion'] },
+            { id: 'q5', text: 'Q5: Explain the medical significance of retrograde axonal transport in relation to neural infections.', keywords: ['virus', 'viruses', 'toxin', 'toxins', 'endocytosis', 'pathogen', 'rabies', 'tetanus'] },
+            { id: 'q6', text: 'Q6: Differentiate between gray matter and white matter in the CNS regarding their cellular components.', keywords: ['gray', 'grey', 'cell bodies', 'soma', 'white', 'processes', 'axons', 'no bodies'] },
+            { id: 'q7', text: 'Q7: Compare the myelination capacity of a single oligodendrocyte versus a single Schwann cell.', keywords: ['50', 'multiple axons', 'many axons', 'one axon', 'single axon'] },
+            { id: 'q8', text: 'Q8: Outline the timeline of myelin sheath development in the human Central Nervous System from embryonic stage to physical maturity.', keywords: ['4 months', 'gestational', '1 year', 'maturity', 'embryo'] },
+            { id: 'q9', text: 'Q9: Differentiate between Fibrous and Protoplasmic astrocytes based on their anatomical location and process morphology.', keywords: ['fibrous', 'white', 'long', 'protoplasmic', 'gray', 'grey', 'short'] },
+            { id: 'q10', text: 'Q10: Explain the structural role of astrocyte perivascular end-feet in relation to blood capillaries.', keywords: ['capillary', 'capillaries', 'blood', 'endothelial', 'transport', 'ions', 'molecules'] },
+            { id: 'q11', text: 'Q11: How do astrocytes regulate the synaptic cleft microenvironment after a nerve impulse?', keywords: ['neurotransmitter', 'remove', 'pinocytosis', 'confine', 'excess'] },
+            { id: 'q12', text: 'Q12: What constitutes the "glial limitans" and what is its anatomical boundary?', keywords: ['pia mater', 'surface', 'layer', 'outer', 'separating', 'boundary'] },
+            { id: 'q13', text: 'Q13: Describe the cellular response of astrocytes following traumatic damage or pathology in the CNS.', keywords: ['proliferate', 'proliferation', 'scar', 'scar tissue', 'astrogliosis', 'repair'] },
+            { id: 'q14', text: 'Q14: Which diagnostic protein marker is utilized to identify tumors derived from fibrous astrocytes?', keywords: ['gfap', 'glial fibrillary acidic protein'] },
+            { id: 'q15', text: 'Q15: How does the organelle composition of the dendritic base differ from that of the perikaryon?', keywords: ['golgi', 'devoid', 'lack', 'no golgi', 'without golgi'] },
+            { id: 'q16', text: 'Q16: What is the structural origin and functional destination of axonal collateral branches?', keywords: ['return', 'cell body', 'perikaryon', 'feedback'] },
+            { id: 'q17', text: 'Q17: Describe two crucial supportive roles of Schwann cells in PNS nerve injury besides myelin formation.', keywords: ['debris', 'clean', 'guide', 'regrowth', 'regeneration', 'nurture'] },
+            { id: 'q18', text: 'Q18: What is the origin and nature of lipofuscin inclusions found in aged neuronal perikaryon?', keywords: ['undigested', 'lysosome', 'residue', 'pigment'] },
+            { id: 'q19', text: 'Q19: List three distinct regions along a myelinated axon that remain uncovered by myelin sheath.', keywords: ['hillock', 'node of ranvier', 'arborization', 'terminal', 'synapse'] },
+            { id: 'q20', text: 'Q20: What morphological features of the neuronal nucleus indicate high transcriptional and protein synthetic activity?', keywords: ['euchromatic', 'euchromatin', 'prominent nucleolus', 'large', 'nucleolus'] }
+        ];
+
+        // عرض الأسئلة تلقائياً
+        const container = document.getElementById('questions-container');
+        questionsData.forEach(q => {
+            const card = document.createElement('div');
+            card.className = 'exam-card';
+            card.innerHTML = `
+                <div class="question-title">${q.text}</div>
+                <textarea name="${q.id}" placeholder="Type your answer here based on core concepts..."></textarea>
+            `;
+            container.appendChild(card);
+        });
+
+        function checkUnderstanding(text, keywords) {
+            let cleanText = text.trim().toLowerCase();
+            for (let word of keywords) {
+                if (cleanText.includes(word)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function submitExam() {
+            const form = document.forms['examForm'];
+            let totalScore = 0;
+            const maxScore = questionsData.length * 2; // 2 Points per question (Total = 40)
+
+            questionsData.forEach(q => {
+                const answer = form[q.id].value;
+                if (checkUnderstanding(answer, q.keywords)) {
+                    totalScore += 2;
+                }
+            });
+
+            form.style.display = 'none';
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            
+            const percentage = (totalScore / maxScore) * 100;
+
+            if (percentage >= 60) {
+                resultDiv.className = 'pass';
+                resultDiv.innerHTML = `Great Job!<br> Your Score: ${totalScore} / ${maxScore} (${percentage.toFixed(0)}%)`;
+            } else {
+                resultDiv.className = 'fail';
+                resultDiv.innerHTML = `Needs Improvement.<br> Your Score: ${totalScore} / ${maxScore} (${percentage.toFixed(0)}%)`;
+            }
+            
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>
